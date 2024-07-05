@@ -6,6 +6,9 @@ const links = [
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
   { to: "/users", label: "Users" },
+  { to: "/admin", label: "Admin" },
+  { to: "/success", label: "Payment" },
+  { to: "/login", label: "Login" },
 ];
 
 const Navbar = () => {
@@ -52,7 +55,7 @@ const Navbar = () => {
 
       {links.map((link) => (
         <NavLink
-          style={({isActive}) => {
+          style={({ isActive }) => {
             // console.log(isActive);
             return isActive ? activeStyle : defaultStyle;
           }}
