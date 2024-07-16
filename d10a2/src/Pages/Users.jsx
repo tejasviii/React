@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom"; //step - 1
 
 const getData = async (url) => {
   try {
@@ -12,10 +12,23 @@ const getData = async (url) => {
   }
 };
 
+const formatValue = (val) => {
+  if (val <= 1) {
+    val = 1;
+  }
+  if (typeof val != "number") {
+    val = 1;
+  }
+  return Number(val);
+};
 const Users = () => {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams(); //step - 2 //queryparam-1
+  const initialPage = formatValue(searchParams.get("page"));
+  const [page, setPage] = useState(initialPage); // from query param
+  const [title, setTitle] = useState(""); //queryParam-2
 
   const fetchAndUpdateData = async (url) => {
     try {
@@ -30,9 +43,19 @@ const Users = () => {
     }
   };
 
+  const handlePageChange = (val) => {
+    setPage(page + val);
+  };
+
+  console.log(typeof searchParams.get(`page`)); //step - 3
+
   useEffect(() => {
-    fetchAndUpdateData(`https://reqres.in/api/users`);
-  }, []);
+    setSearchParams({ page: page, title: title });
+  }, [page,title]); //step - 4
+
+  useEffect(() => {
+    fetchAndUpdateData(`https://reqres.in/api/users?page=${page}`);
+  }, [page]);
 
   if (loading) {
     return <h1>Loading...</h1>;
@@ -44,6 +67,12 @@ const Users = () => {
 
   return (
     <div>
+      <input value={title} onChange={(e) => setTitle(e.target.value)} />
+      <div>
+        <button onClick={() => handlePageChange(-1)}>PREV</button>
+        <button>{page}</button>
+        <button onClick={() => handlePageChange(1)}>NEXT</button>
+      </div>
       <h1>Users</h1>
       {users.map((user) => (
         <div
