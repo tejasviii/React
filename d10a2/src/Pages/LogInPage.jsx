@@ -1,18 +1,32 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Navigate } from "react-router-dom";
 
 const LogInPage = () => {
-  const { toggleAuth } = useContext(AuthContext);
-  const { isAuth } = useContext(AuthContext);
+  const { logIn } = useContext(AuthContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  if (isAuth) {
-    return <Navigate to="/users" />;
-  }
+  const handleLogIn = () => {
+    const logInDetails = { email, password };
+    fetch(`https://reqres.in/api/login`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(logInDetails),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res.token);
+        logIn(res.token);
+      });
+  };
+
   return (
     <div>
       <h1>LogInPage</h1>
-      <button onClick={toggleAuth}>Click Here</button>
+      <input value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input value={password} onChange={(e) => setPassword(e.target.value)} />
+      <button onClick={handleLogIn}>LogIn</button>
     </div>
   );
 };
