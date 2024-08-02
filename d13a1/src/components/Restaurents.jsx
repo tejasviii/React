@@ -2,30 +2,15 @@ import React from "react";
 import { useEffect } from "react";
 import axios from "axios";
 import { useReducer, useState } from "react";
-import getUsers from "../utils/api";
+import getUsers, { postRestaurantData } from "../utils/api";
+import RestaurantCard from "./RestaurantCard";
+import dataFetchReducer from "../reducer/restaurantReducer";
+import AddRestaurant from "./AddRestaurant";
 
 const initialState = {
   loading: false,
   data: [],
   err: false,
-};
-
-const dataFetchReducer = (state, { type, payload }) => {
-  switch (type) {
-    case "FETCH_LOADING": {
-      console.log("loading set to true");
-      return { ...state, loading: true };
-    }
-    case "FETCH_SUCCESS": {
-      return { ...state, loading: false, data: payload };
-    }
-    case "FETCH_FAILURE": {
-      return { ...state, loading: false, err: true };
-    }
-    default: {
-      throw new Error(`invalid action type`);
-    }
-  }
 };
 
 //get the data (use axious) and display the same
@@ -38,7 +23,7 @@ const Restaurents = () => {
 
   const fetchAndUpdateData = (page, limit, sortBy, sortOrder) => {
     dispatch({ type: "FETCH_LOADING" });
-    getUsers({page,limit,sortBy,sortOrder})
+    getUsers({ page, limit, sortBy, sortOrder })
       .then((res) => {
         // console.log(res?.data);
         dispatch({ type: "FETCH_SUCCESS", payload: res?.data });
@@ -69,9 +54,20 @@ const Restaurents = () => {
     setLimit(limit + val);
   };
 
+  const postRestaurantData = (restaurantData) => {
+    postRestaurantData(restaurantData)
+      .then((res) => {
+        fetchAndUpdateData(page, limit, sortBy, sortOrder);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   console.log(state);
   return (
     <div>
+      <AddRestaurant postRestaurantData={postRestaurantData} />
       <div>
         <button onClick={() => handlePageChange(-1)}>PREVIOUS</button>
         <button disabled>Page : {page}</button>
@@ -83,33 +79,18 @@ const Restaurents = () => {
         <button onClick={() => handleLimitChange(1)}>NEXT</button>
       </div>
       <div>
-        <button onClick={()=>setSortOrder("asc")}>ASCENDING</button>
+        <button onClick={() => setSortOrder("asc")}>ASCENDING</button>
         <button disabled>SORT ORDER</button>
-        <button onClick={()=>setSortOrder("desc")}>DECENDING</button>
+        <button onClick={() => setSortOrder("desc")}>DECENDING</button>
       </div>
       <div>
-        <button onClick={()=>setSortBy("id")}>id</button>
-        <button onClick={()=>setSortBy("userId")}>userId</button>
-        <button onClick={()=>setSortBy("title")}>title</button>
-        <button onClick={()=>setSortBy("body")}>body</button>
+        <button onClick={() => setSortBy("id")}>id</button>
+        <button onClick={() => setSortBy("userId")}>userId</button>
+        <button onClick={() => setSortBy("title")}>title</button>
+        <button onClick={() => setSortBy("body")}>body</button>
       </div>
       {state.data.map((d) => (
-        <div
-          key={d.id}
-          style={{ border: "1px solid black", padding: "10px", margin: "10px" }}
-        >
-          <span>id : </span>
-          <span>{d?.id}</span>
-          <br />
-          <span>userId : </span>
-          <span>{d?.userId}</span>
-          <br />
-          <span>title : </span>
-          <span>{d?.title}</span>
-          <br />
-          <span>body : </span>
-          <span>{String(d?.body)}</span>
-        </div>
+        <RestaurantCard d={d} />
       ))}
     </div>
   );

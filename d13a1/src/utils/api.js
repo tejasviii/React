@@ -22,4 +22,16 @@ const getUsers = (params) => {
   });
 };
 
+// export const postRestaurantData = (restaurantData) => {
+//   return axios.post(`https://jsonplaceholder.typicode.com/posts`, {
+//     ...restaurantData,
+//   });
+// };
+//can also be written as below
+export const postRestaurantData = (restaurantData) => {
+  return axios({method:"post",
+    url:"https://jsonplaceholder.typicode.com/posts",
+    data:restaurantData
+  })
+};
 export default getUsers;
